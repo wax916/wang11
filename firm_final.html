@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>提交审核</title>
+	<link rel="stylesheet" href="css/firm_final.css">
+	<link rel="stylesheet" href="css/hong.css">
+</head>
+<body>
+<div class="firm_container">
+	<div class="hong-header">
+    	<em><span class="submitbtn hongbtn">提交审核</span></em>
+    </div>
+	<div class="firm_big">
+		<div class="firm_s">
+			<div class="firm_main">
+				<div class="firm_item_name"><span class="click-title">企业资料</span></div>
+		    	<ul class="reg_ul">
+			        <li class="reg_li">
+			            <span class="left-til"><em>*</em>企业全称：</span>
+			            <input type="text" class="input"  name="enterpriseFullName" id="enterpriseFullName" maxlength="50"  unitType="input" placeholder="一旦填写将不可修改" >             
+			        </li>
+			        <li class="reg_li">
+			            <span class="left-til"><em>*</em>企业证照号：</span>
+			            <input type="text" class="input"  name="enterpriseLicenseNo" id="enterpriseLicenseNo"  maxlength="50" unitType="input" placeholder="请输入企业证照号">
+			        </li>
+					<li class="reg_li" style="margin-bottom:20px;">
+						<span class="left-til"><em>*</em>企业证照：</span>
+	                    <a class="upload">
+	                    	<input type="file" id="enterpriseInput" name="file" onchange="upload(this, 'license', 'eRegisterLicenseImg', 'headPic')" accept="image/*" style="position:relative;">
+	                    	<img id="imgShow">
+	                    	<!-- <span class="qy_img">企业证照</span> -->
+	                    </a>
+		            </li>
+		            <div class="clear"></div>
+		            <div class="reg_line"></div>
+		    	</ul>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+<script src="js/jquery-1.10.2.js" type="text/javascript"></script>
+<script src='js/imgload/jquery.form.js' type='text/javascript'></script>
+<script src='js/imgload/loading.js' type='text/javascript'></script>
+<script src='js/imgload/ajaxSubmitFile-1.0.min.js' type='text/javascript'></script>
+<script>
+// 获取地址栏参数
+getparam = function(){
+	var param = {};
+	var p = location.href.split('?');
+	if(p.length>1){p = p[1].split('&');	
+		$.each(p,function(i,n){
+			p2 = n.split('=');
+			param[p2[0]] = decodeURI(p2[1])||'';	
+		});
+	}
+	return param;
+}
+var id = getparam().id;
+$.post('/testback/registerclinic/selectClinicOrGroupById','info={type:"2",clinicid:"",groupid:"'+id+'"}',function(d){
+	$("#enterpriseFullName").val(d.data.name);
+	$("#enterpriseLicenseNo").val(d.data.groupid);
+	$("#imgShow").attr("src",d.img.certifiImg[0].imgurl);
+})
+initFileUpload("enterpriseInput");
+// 图片上传
+function initFileUpload(id) {
+	var a ="/testback/userAccount/uploadImg.htm";
+	$("#" + id).submitFile({
+		action : a,
+		zindex : 0,
+		type : "text",
+		success : function(url, obj) {
+			//console.log(obj)
+			$("#imgShow").attr("src", url);
+			$("#imgShow").attr("value", url);
+			removeLoad();
+		}
+	});
+}	
+$("#enterpriseFullName").on("focus",function(){
+	$("#enterpriseFullName").removeClass("wrong");
+})
+$("#enterpriseLicenseNo").on("focus",function(){
+	$("#enterpriseLicenseNo").removeClass("wrong");
+})
+$(".hongbtn").on("click",function(){
+	var qy_name = $("#enterpriseFullName").val(),
+		qy_number = $("#enterpriseLicenseNo").val(),
+		qy_img = $("#imgShow").attr("src");
+	if( qy_name == "" ){
+		$("#enterpriseFullName").addClass("wrong");
+	}else{
+		$("#enterpriseFullName").removeClass("wrong");
+	}
+	if( qy_number == "" ){
+		$("#enterpriseLicenseNo").addClass("wrong");
+	}else{
+		$("#enterpriseLicenseNo").removeClass("wrong");
+	}
+	if( qy_img ){
+		$(".upload").removeClass("wrong");
+	}else{
+		$(".upload").addClass("wrong");
+	}
+	if( qy_name!="" && qy_number!= "" && qy_img!=""){
+		console.log(qy_name,qy_number,qy_img);
+		$.post('/testback/registerclinic/modifyregistersclinic','info={groupid:"'+id+'",name:"'+qy_name+'",credentialscard:"'+qy_number+'",password:"",credentialsfile:"'+qy_img+'"}',function(data){
+			console.log(data);
+			if(data.code==0){
+				alert("审核成功!");
+			}else{
+				alert("审核失败!");
+			}
+		})
+	}
+})
+</script>
+</html>

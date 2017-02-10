@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>审核状态</title>
+	<link rel="stylesheet" href="css/check_ts.css">
+</head>
+<body>
+<div class="check_ts">
+	<div class="ts_header">
+		<div class="ts_logo"></div>
+	</div>
+	<div class="ts_box">
+		<!-- 未通过 -->
+		<div class="ts_nopass">
+			<div class="nopass_main">
+				<div class="no_left"></div>
+				<div class="no_right">
+					<h5>对不起，您入驻的医疗机构审核不通过！</h5>
+					<ul class="yuanyin yuanyin1">
+						<span>原因:</span>
+						<!-- <li>1、对不起，您的医疗机构审核不通过</li>
+						<li>2、对不起，您的医疗机构审核不通过 </li> -->
+					</ul>
+					<ul class="yuanyin yuanyin2">
+						<span>说明:</span>
+						<!-- <li>1、对不起，您的医疗机构审核不通过</li>
+						<li>2、对不起，您的医疗机构审核不通过 </li> -->
+					</ul>
+					<div class="ts_bottom">
+						<a class="information_btn">完善资料</a>您可再次完善资料，重新提交审核。
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 单一审核通过 -->
+		<div class="one_success">
+			<div class="onesucc_main">
+				<div class="onesucc_left"></div>
+				<div class="onesucc_right">
+					<h5>恭喜，您入驻的医疗机构已审核通过！</h5>
+					<p class="succ_leader">完善以下信息即可开启您的云诊所之旅！</p>
+					<div class="onesucc_bottom">
+						<!-- <a class="onecom">完善诊所基础信息</a> -->
+						<a class="onecom" href="http://yun.oasisapp.cn:8080/yunhis/html/index.jsp#ajax/clinic_manage.jsp">员工账号管理</a>
+						<!-- <a class="onecom">添加共享诊室</a> -->
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 连锁审核通过 -->
+		<div class="more_success">
+			<div class="moresucc_main">
+				<div class="onesucc_left"></div>
+				<div class="onesucc_right">
+					<h5>恭喜，您入驻的医疗机构已审核通过！</h5>
+					<p class="succ_leader">完善以下信息即可开启您的云诊所之旅！</p>
+					<div class="moresucc_bottom">
+						<a class="onecom">关联诊所</a>关联子诊所可进行统一管理
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 审核中 -->
+		<div class="waiting_box">
+			<div class="wait_main">您的入驻信息还在审核中，请耐心等待！</div>
+		</div>
+	</div>
+</div>
+</body>
+<script src="js/jquery-1.10.2.js" type="text/javascript"></script>
+<script>
+// 获取地址栏参数
+getparam = function(){
+	var param = {};
+	var p = location.href.split('?');
+	if(p.length>1){p = p[1].split('&');	
+		$.each(p,function(i,n){
+			p2 = n.split('=');
+			param[p2[0]] = decodeURI(p2[1])||'';	
+		});
+	}
+	return param;
+}
+//status:0待审核，1：审核通过，2：审核未通过
+var type = getparam().type,//1=单体，2=连锁
+	id = getparam().id;
+$.post('/testback/registerclinic/selectClinicStatusByPerson','info={type:"'+type+'",id:"'+id+'"}',function(data){
+	console.log(data);
+	// {"data":{"clinicid":100049494,"hisclinicid":100000000000315,"reason":"信息虚假,信息不完善,联系人信息不对,其他","status":2,"comment":"重新上传"},"code":"0","msg":"成功"}
+	$(".yuanyin1").append('<li>'+data.data.reason+'</li>');
+	$(".yuanyin2").append('<li>'+data.data.comment+'</li>');
+	if(data.data.status==0){
+		$(".waiting_box").show().siblings().hide();
+	}else if(data.data.status==2){
+		$(".ts_nopass").show().siblings().hide();
+	}
+	if(data.data.status==1){
+		if( type == 2 ){
+			$(".more_success").show().siblings().hide();
+		}else{
+			$(".one_success").show().siblings().hide();
+		}
+	}
+});
+$(".information_btn").on("click",function(){
+	if( type == 1 ){
+		window.location.href="/yunhong/clinic.html?hisclinicid="+id+"&clinicid="+id;
+	}else{
+		window.location.href="/yunhong/firm_final.html?id="+id;
+	}
+})
+</script>
+</html>

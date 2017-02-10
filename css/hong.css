@@ -1,0 +1,24 @@
+/*新样式*/
+.hong-header{
+	width:100%;
+	height:112px;
+	text-align:center;
+	line-height:112px;
+	background:white;
+	position:fixed;
+	z-index:5;
+}
+.hong-header em{
+	width:1088px;
+	text-align:right;
+	display:inline-block;
+	background:url(../img/hongtitle.png) no-repeat left 0 center;
+}
+.hongbtn{
+	width:135px !important;
+	background:#e21d1d;
+	margin-right:113px;
+}
+.mainbody{
+	padding-top:112px;
+}
